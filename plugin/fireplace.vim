@@ -34,6 +34,15 @@ augroup fireplace
         \ endfor
 augroup END
 
+" Keep Fireplace :Last previews out of buffer pickers
+augroup fireplace_preview_enforce
+  autocmd!
+  autocmd BufWinEnter,WinEnter,BufEnter *
+        \ if &previewwindow && &filetype =~# '^clojure' |
+        \   setlocal nobuflisted bufhidden=wipe |
+        \ endif
+augroup END
+
 command! -bar -bang -complete=customlist,fireplace#ConnectComplete -nargs=* FireplaceConnect
       \ exe fireplace#ConnectCommand(<line1>, <count>, +'<range>', <bang>0, <q-mods>, <q-args>, [<f-args>])
 command! -bang -range -complete=customlist,fireplace#CljEvalComplete -nargs=* CljEval
