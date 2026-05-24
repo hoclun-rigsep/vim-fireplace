@@ -1932,7 +1932,7 @@ endfunction
 
 function! fireplace#info(symbol) abort
   if fireplace#op_available('info')
-    let response = fireplace#message({'op': 'info', 'symbol': a:symbol}, v:t_dict)
+    let response = fireplace#message({'op': 'info', 'symbol': a:symbol, 'download-sources-jar': '1'}, v:t_dict)
     if type(get(response, 'value')) == type({})
       return response.value
     elseif has_key(response, 'file') || has_key(response, 'doc')
@@ -2207,7 +2207,7 @@ function! fireplace#cfile() abort
     let [file, jump] = split(file, "/")
     let file = fireplace#resolve_alias(file)
     if file !~# '\.' && fireplace#op_available('info')
-      let res = fireplace#message({'op': 'info', 'symbol': file}, v:t_dict)
+      let res = fireplace#message({'op': 'info', 'symbol': file, 'download-sources-jar': '1'}, v:t_dict)
       let file = get(res, 'ns', file)
     endif
     let file = tr(file, '.-', '/_')
