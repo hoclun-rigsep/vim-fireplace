@@ -65,6 +65,23 @@ function! s:zipfile_url(archive, path) abort
   endif
 endfunction
 
+let s:zip_temp_cache = {}
+
+function! s:zip_extract_temp(archive, entry) abort
+  let key = a:archive . '::' . a:entry
+  if has_key(s:zip_temp_cache, key) && filereadable(s:zip_temp_cache[key])
+    return s:zip_temp_cache[key]
+  endif
+  let content = system('unzip -p ' . shellescape(a:archive) . ' ' . shellescape(a:entry))
+  if v:shell_error || empty(content)
+    return ''
+  endif
+  let tmpfile = tempname() . '.' . fnamemodify(a:entry, ':e')
+  call writefile(split(content, "\n"), tmpfile)
+  let s:zip_temp_cache[key] = tmpfile
+  return tmpfile
+endfunction
+
 " Section: Escaping
 
 function! s:str(string) abort
@@ -1986,7 +2003,10 @@ function! fireplace#source(symbol) abort
     elseif get(info, 'file', '') =~# '^jar:file:'
       let zip = matchstr(info.file, '^jar:file:\zs.*\ze!')
       let resource = get(info, 'resource', matchstr(info.file, '!\/\=\zs.*'))
-      let file = s:zipfile_url(zip, resource)
+      let file = s:zip_extract_temp(zip, resource)
+      if empty(file)
+        let file = s:zipfile_url(zip, resource)
+      endif
     else
       let file = get(info, 'file', '')
     endif
