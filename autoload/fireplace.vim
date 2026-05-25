@@ -58,7 +58,7 @@ function! s:cword() abort
 endfunction
 
 function! s:zipfile_url(archive, path) abort
-  if get(g:, 'loaded_zipPlugin')[1:-1] > 31
+  if exists('#BufReadCmd#zipfile://*')
     return 'zipfile://' . a:archive . '::' . a:path
   else
     return 'zipfile:' . a:archive . '::' . a:path
