@@ -1985,7 +1985,8 @@ function! fireplace#source(symbol) abort
       let file = substitute(strpart(info.file, 5), '/', s:slash(), 'g')
     elseif get(info, 'file', '') =~# '^jar:file:'
       let zip = matchstr(info.file, '^jar:file:\zs.*\ze!')
-      let file = s:zipfile_url(zip, info.resource)
+      let resource = get(info, 'resource', matchstr(info.file, '!\/\=\zs.*'))
+      let file = s:zipfile_url(zip, resource)
     else
       let file = get(info, 'file', '')
     endif
