@@ -72,7 +72,21 @@ function! s:zip_extract_temp(archive, entry) abort
   if has_key(s:zip_temp_cache, key) && filereadable(s:zip_temp_cache[key])
     return s:zip_temp_cache[key]
   endif
-  let content = system('unzip -p ' . shellescape(a:archive) . ' ' . shellescape(a:entry))
+  if !exists('s:unzip')
+    if executable('unzip')
+      let s:unzip = 'unzip -p'
+    elseif executable('python')
+      let s:unzip = 'python -c ' . shellescape('import zipfile,sys;sys.stdout.write(zipfile.ZipFile(sys.argv[1]).read(sys.argv[2]))')
+    elseif executable('python3')
+      let s:unzip = 'python3 -c ' . shellescape('import zipfile,sys;sys.stdout.buffer.write(zipfile.ZipFile(sys.argv[1]).read(sys.argv[2]))')
+    else
+      let s:unzip = ''
+    endif
+  endif
+  if empty(s:unzip)
+    return ''
+  endif
+  let content = system(s:unzip . ' ' . shellescape(a:archive) . ' ' . shellescape(a:entry))
   if v:shell_error || empty(content)
     return ''
   endif
